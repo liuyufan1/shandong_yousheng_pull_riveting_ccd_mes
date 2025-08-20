@@ -12,6 +12,6 @@ public class CCDData
     public override string ToString()
     {
         string res = Result == 1 ? "NG" : "OK";
-        return res + DetailedInformation;
+        return res + "," + DetailedInformation;
     }
 }

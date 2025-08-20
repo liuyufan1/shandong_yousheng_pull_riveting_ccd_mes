@@ -96,10 +96,19 @@ public class ServoFinished
                 case "拉铆结果":
                     if (payloadInt != 0)
                     {
-                        LogUtil.ShowInMainPgae($"[伺服{device}] 拉铆结果信号: {message}");
+                        // LogUtil.ShowInMainPgae($"[伺服{device}] 拉铆结果信号: {message}");
+                        Log.Information($"[伺服{device}] 拉铆结果信号: {message}");
                         // 提取设备编号，例如 "1号拉铆枪" -> id = 1
                         if (int.TryParse(device.Substring(0, device.IndexOf("号")), out int id))
-                            ReadData(id); // 每次产品完成就调用 ReadData
+                        {
+                            // 异步延迟 100ms 后调用 ReadData
+                            _ = Task.Run(async () =>
+                            {
+                                await Task.Delay(100); // 延迟 100ms
+                                ReadData(id);
+                            });
+                        }
+
 
                     }
                     break;
@@ -128,29 +137,37 @@ public class ServoFinished
             string d3 = (string?)jsonObj["拉铆结果"] ?? "";
             
             
-            string data = "拉力值：" + d1 + "  行程值：" + d2 + "  拉铆结果：" + d3;
+            string data = $"{d1},{d2},{d3}";
 
             // LogUtil.ShowInMainPgae("伺服拉铆完成信号: " + data + " id:" + id);
             
-            Log.Information($"[{id}号拉铆枪] 伺服拉铆完成信号: " + data);
+            Log.Information($"[伺服{id}号拉铆枪] 伺服拉铆完成信号: " + data);
             
             // 根据拉力值、行程值、拉铆结果做后续处理
-            switch (id)
+            var rivetings = new Dictionary<int, ServoRivetingInstall>
             {
-                case 1:
-                    ServoRivetingManage.ServoRiveting1.Data?.Processes.Add(data);
-                    break;
-                case 2:
-                    ServoRivetingManage.ServoRiveting2.Data?.Processes.Add(data);
-                    break;
-                case 3:
-                    ServoRivetingManage.ServoRiveting3.Data?.Processes.Add(data);
-                    break;
-                case 4:
-                    ServoRivetingManage.ServoRiveting4.Data?.Processes.Add(data);
-                    break;
-                
+                { 1, ServoRivetingManage.ServoRiveting1 },
+                { 2, ServoRivetingManage.ServoRiveting2 },
+                { 3, ServoRivetingManage.ServoRiveting3 },
+                { 4, ServoRivetingManage.ServoRiveting4 }
+            };
+
+            if (rivetings.TryGetValue(id, out var riveting))
+            {
+                if (riveting.Data != null)
+                {
+                    riveting.Data.Processes.Add(data);
+                    LogUtil.AddLog($"[伺服{id}号拉铆枪]当前Data:" + riveting.Data);
+                }
+                else
+                {
+                    riveting.Data = new ServoRivetingData();
+                    riveting.Data.Processes.Add(data);
+                    LogUtil.AddLog($"[伺服{id}号拉铆枪]当前Data:" + riveting.Data);
+                    // LogUtil.AddLog($"[伺服{id}号拉铆枪] Data为空");
+                }
             }
+
         }
         catch (Exception ex)
         {
@@ -161,7 +178,7 @@ public class ServoFinished
     // 产品完成
     private static void ProductCompleted(int id)
     { 
-        LogUtil.ShowInMainPgae($"伺服拉铆设备{id}完成");
+        LogUtil.ShowInMainPgae($"[伺服拉铆设备{id}]完成");
         try
         {
             switch (id)

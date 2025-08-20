@@ -23,50 +23,61 @@ public class PdaBarcodeReceived
         switch (machineName)
         {
             case "MS11抽芯拉铆左":
-                LogUtil.AddLog(machineName + ", 扫码成功: " + barcode);
+                LogUtil.AddLog("[" + machineName + "]"  + ", 扫码成功: " + barcode);
                 CorePullingRivetingManage.MS11Left.NowBarcode = barcode;
                 break;
             case "MS11抽芯拉铆右":
-                LogUtil.AddLog(machineName + ", 扫码成功: " + barcode);
+                LogUtil.AddLog("[" + machineName + "]"  + ", 扫码成功: " + barcode);
                 CorePullingRivetingManage.MS11Right.NowBarcode = barcode;
                 break;
             case "MX11抽芯拉铆左":
-                LogUtil.AddLog(machineName + ", 扫码成功: " + barcode);
+                LogUtil.AddLog("[" + machineName + "]"  + ", 扫码成功: " + barcode);
                 CorePullingRivetingManage.MX11Left.NowBarcode = barcode;
                 break;
             case "MX11抽芯拉铆右":
-                LogUtil.AddLog(machineName + ", 扫码成功: " + barcode);
+                LogUtil.AddLog("[" + machineName + "]"  + ", 扫码成功: " + barcode);
                 CorePullingRivetingManage.MX11Right.NowBarcode = barcode;
                 break;
             case "MS11CCD":
-                LogUtil.AddLog(machineName + ", 扫码成功: " + barcode);
+                LogUtil.AddLog("[" + machineName + "]"  + ", 扫码成功: " + barcode);
                 CCDManage.MS11CCD.NowBarcode = barcode;
                 break;
             case "MX11CCD":
-                LogUtil.AddLog(machineName + ", 扫码成功: " + barcode);
+                LogUtil.AddLog("[" + machineName + "]"  + ", 扫码成功: " + barcode);
                 CCDManage.MX11CCD.NowBarcode = barcode;
                 break;
+            // case "伺服拉铆1":
+            //     LogUtil.AddLog("[" + machineName + "]"  + ", 扫码成功: " + barcode);
+            //     ServoRivetingManage.ServoRiveting1.NowBarcode = barcode;
+            //     break;
+            // case "伺服拉铆2":
+            //     LogUtil.AddLog("[" + machineName + "]"  + ", 扫码成功: " + barcode);
+            //     ServoRivetingManage.ServoRiveting2.NowBarcode = barcode;
+            //     break;
+            // 伺服拉铆1或2只需要扫一次
             case "伺服拉铆1":
-                LogUtil.AddLog(machineName + ", 扫码成功: " + barcode);
-                ServoRivetingManage.ServoRiveting1.NowBarcode = barcode;
-                break;
             case "伺服拉铆2":
-                LogUtil.AddLog(machineName + ", 扫码成功: " + barcode);
+                LogUtil.AddLog("[伺服拉铆1]"  + ", 扫码成功: " + barcode);
+                ServoRivetingManage.ServoRiveting1.NowBarcode = barcode;
+                LogUtil.AddLog("[伺服拉铆2]"  + ", 扫码成功: " + barcode);
                 ServoRivetingManage.ServoRiveting2.NowBarcode = barcode;
                 break;
             case "伺服拉铆3":
-                LogUtil.AddLog(machineName + ", 扫码成功: " + barcode);
+                LogUtil.AddLog("[" + machineName + "]"  + ", 扫码成功: " + barcode);
                 ServoRivetingManage.ServoRiveting3.NowBarcode = barcode;
                 break;
             case "伺服拉铆4":
-                LogUtil.AddLog(machineName + ", 扫码成功: " + barcode);
+                LogUtil.AddLog("[" + machineName + "]"  + ", 扫码成功: " + barcode);
                 ServoRivetingManage.ServoRiveting4.NowBarcode = barcode;
                 break;
+            
             default:
-                LogUtil.AddLog("machineName匹配失败：" + machineName);
-                return ResEntity.Fail(401, "machineName匹配失败：" + machineName);
+                LogUtil.AddLog("machineName 匹配失败：" + "[" + machineName + "]" );
+                return ResEntity.Fail(401, "machineName 匹配失败：" + "[" + machineName + "]" );
                 
         }
         return ResEntity.Success("扫码成功" + barcode);
     }
+    
+    
 }

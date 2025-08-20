@@ -21,21 +21,30 @@ public abstract class DeviceFather<T> where T : new()
     
     public ResEntity SendToMes()
     {
+        
+        var dataStr = Data?.ToString()??"";
+        if (String.IsNullOrEmpty(NowBarcode))
+        {
+            LogUtil.ShowInMainPgae("MES:[" + Name + "] 条码为空。data: " + dataStr);
+            NowBarcode = "";
+            Data = new T(); // 重置 Data
+            return ResEntity.Fail(500, "条码为空");
+        }
         ResEntity resultResult = new ResEntity();
         for (int i = 0; i < 3; i++)
         {
-            var result = MesUtil.Upload(NowBarcode, Processes, Board, UserName, "", "", Data?.ToString()??"");
+            var result = MesUtil.Upload(NowBarcode, Processes, Board, UserName,"", dataStr,"");
             resultResult = result.Result;
             if (resultResult.Code == 200)
             {
-                LogUtil.ShowInMainPgae(Name + " mes上传成功。条码：" + NowBarcode);
+                LogUtil.ShowInMainPgae("MES:[" + Name + "] mes上传成功。条码：" + NowBarcode + "  data:" + dataStr);
                 NowBarcode = "";
                 Data = new T(); // 重置 Data
                 return resultResult;
             }
         }
 
-        LogUtil.ShowInMainPgae(Name + " mes连续上传失败3次。条码：" + NowBarcode + " " + resultResult.Message);
+        LogUtil.ShowInMainPgae("MES:[" + Name + "] mes连续上传失败3次。条码：" + NowBarcode + " " + resultResult.Message);
         NowBarcode = "";
         Data = new T(); // 重置 Data
 

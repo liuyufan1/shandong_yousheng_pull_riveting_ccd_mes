@@ -19,6 +19,6 @@ public class LogUtil
 
         Log.Information(message);
         // 调用主线程追加日志
-        ShowInMainPgae.Invoke($"{DateTime.Now:HH:mm:ss} {message}");
+        ShowInMainPgae.Invoke($"{message}");
     }
 }

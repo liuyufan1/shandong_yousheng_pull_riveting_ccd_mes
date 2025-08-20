@@ -14,27 +14,22 @@ public class CCDInstall : DeviceFather<CCDData>
         Processes = "ccd";
     }
 
-    public ResEntity SendToMes()
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            var result = MesUtil.Upload(NowBarcode, Processes, Board, UserName,"","", Data?.ToString()??"");
-            var resultResult = result.Result;
-            if (resultResult.Code == 200)
-            {
-                return resultResult;
-            }
-        }
-
-        LogUtil.ShowInMainPgae(Name + " mes连续上传失败3次。条码：" + NowBarcode);
-        NowBarcode = "";
-        
-        return ResEntity.Fail(500, "上传失败3次");
-    }
-
-    public void ClearData()
-    {
-        NowBarcode = "";
-        Data = new CCDData();
-    }
+    // public ResEntity SendToMes()
+    // {
+    //     for (int i = 0; i < 3; i++)
+    //     {
+    //         var result = MesUtil.Upload(NowBarcode, Processes, Board, UserName,"","", Data?.ToString()??"");
+    //         var resultResult = result.Result;
+    //         if (resultResult.Code == 200)
+    //         {
+    //             return resultResult;
+    //         }
+    //     }
+    //
+    //     LogUtil.ShowInMainPgae(Name + " mes连续上传失败3次。条码：" + NowBarcode);
+    //     NowBarcode = "";
+    //     
+    //     return ResEntity.Fail(500, "上传失败3次");
+    // }
+    
 }

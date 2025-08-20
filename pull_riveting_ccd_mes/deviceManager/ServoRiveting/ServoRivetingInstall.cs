@@ -13,6 +13,7 @@ public class ServoRivetingInstall : DeviceFather<ServoRivetingData>
         Board = board;
         UserName = userName;
         Processes = "伺服拉铆";
+        Data = new ServoRivetingData();
     }
 
 }

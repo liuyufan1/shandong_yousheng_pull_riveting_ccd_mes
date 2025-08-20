@@ -6,6 +6,6 @@ public class ServoRivetingData
 
     public override string ToString()
     {
-        return string.Join("，" + Processes);
+        return string.Join(";", Processes);
     }
 }
