@@ -7,12 +7,12 @@ public class ServoRivetingInstall : DeviceFather<ServoRivetingData>
 {
     
     
-    public ServoRivetingInstall(string name, string board, string userName)
+    public ServoRivetingInstall(string name, string board, string userName, string process)
     { 
         Name = name;
         Board = board;
         UserName = userName;
-        Processes = "伺服拉铆";
+        Processes = process;
         Data = new ServoRivetingData();
     }
 

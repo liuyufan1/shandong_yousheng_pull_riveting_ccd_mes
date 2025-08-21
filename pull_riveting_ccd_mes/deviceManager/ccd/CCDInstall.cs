@@ -6,12 +6,12 @@ namespace pull_riveting_ccd_mes.deviceManager.ccd;
 public class CCDInstall : DeviceFather<CCDData>
 {
 
-    public CCDInstall(string name, string board, string userName)
+    public CCDInstall(string name, string board, string userName, string process)
     {
         Name = name;
         Board = board;
         UserName = userName;
-        Processes = "ccd";
+        Processes = process;
     }
 
     // public ResEntity SendToMes()

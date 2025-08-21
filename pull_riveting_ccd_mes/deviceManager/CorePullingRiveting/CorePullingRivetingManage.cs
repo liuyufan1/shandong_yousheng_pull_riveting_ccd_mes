@@ -9,9 +9,9 @@ public class CorePullingRivetingManage
     
     public static void Init()
     { 
-        MS11Left = new CorePullingRivetingInstall("拉铆1", "S1581", "拉铆1");
-        MS11Right = new CorePullingRivetingInstall("拉铆2", "S1582", "拉铆2");
-        MX11Left = new CorePullingRivetingInstall("拉铆3", "S1583", "拉铆3");
-        MX11Right = new CorePullingRivetingInstall("拉铆4", "S1584", "拉铆4");
+        MS11Left = new CorePullingRivetingInstall("拉铆1", "S1581", "拉铆1", "抽芯拉铆1");
+        MS11Right = new CorePullingRivetingInstall("拉铆2", "S1582", "拉铆2", "抽芯拉铆2");
+        MX11Left = new CorePullingRivetingInstall("拉铆3", "S1583", "拉铆3", "抽芯拉铆3");
+        MX11Right = new CorePullingRivetingInstall("拉铆4", "S1584", "拉铆4", "抽芯拉铆4");
     }
 }
