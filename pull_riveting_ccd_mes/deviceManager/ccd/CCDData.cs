@@ -1,6 +1,6 @@
 namespace pull_riveting_ccd_mes.deviceManager.ccd;
 
-public class CCDData
+public class CCDData : DataFather
 {
     // 视觉拍照检测总结果。 检测结果1为NG,2为OK
     public int Result { get; set; } 
@@ -14,4 +14,13 @@ public class CCDData
         string res = Result == 1 ? "NG" : "OK";
         return res + "," + DetailedInformation;
     }
+
+
+    public override string GetMesStatus()
+    {
+        // 改为返回B
+        return Result == 1 ? "B" : "A";
+    }
+    
+    
 }

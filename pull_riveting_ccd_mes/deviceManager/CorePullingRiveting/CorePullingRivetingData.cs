@@ -1,6 +1,6 @@
 namespace pull_riveting_ccd_mes.deviceManager.CorePullingRiveting;
 
-public class CorePullingRivetingData
+public class CorePullingRivetingData : DataFather
 {
     public int Number { get; set; }
 

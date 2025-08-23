@@ -12,7 +12,7 @@ public class MesUtil
 
     public static async Task<ResEntity> Upload(string barcode, string process, 
                             string board, string username,
-                            string heatNumber, string spec, string alloy)
+                            string heatNumber, string spec, string alloy, string status = "A")
     {
         try
         {
@@ -23,7 +23,7 @@ public class MesUtil
                 WBarCodeStr = "",
                 BarCodeStr = barcode,
                 Processes = process, // 工序名： ccd 抽芯拉铆 伺服拉铆
-                Status = "A",
+                Status = status,
                 Board = board, // 机台编号
                 Num = 1,
                 UserName = username, // 机台名

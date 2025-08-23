@@ -1,6 +1,6 @@
 namespace pull_riveting_ccd_mes.deviceManager.ServoRiveting;
 
-public class ServoRivetingData
+public class ServoRivetingData : DataFather
 {
     public List<string> Processes = new();
 
