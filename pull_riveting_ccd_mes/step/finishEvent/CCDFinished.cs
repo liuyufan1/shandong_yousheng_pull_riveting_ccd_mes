@@ -5,7 +5,7 @@ using Serilog;
 namespace pull_riveting_ccd_mes.step.finishEvent;
 
 /// <summary>
-/// CCD完成检测类
+/// CCD完成检测 + 扫码完成检测类
 /// </summary>
 public class CCDFinished
 {
@@ -15,8 +15,14 @@ public class CCDFinished
     private bool lastBoolMS11 = false;
     private bool lastBoolMX11 = false;
 
-    // 上升沿触发事件，参数：CCD名称，Int值，DInt值
+    private bool lastScanMS11 = false;
+    private bool lastScanMX11 = false;
+
+    // CCD上升沿触发事件：CCD名称，Int值，DInt值
     public event Action<string, short, int> OnCCDTriggered;
+
+    // 扫码上升沿触发事件：设备名称，条码值
+    public event Action<string, string> OnBarcodeTriggered;
 
     public CCDFinished()
     {
@@ -46,8 +52,8 @@ public class CCDFinished
         Log.Information("[MS11CCD] 和 [MX11CCD] 已连接");
 
         // 启动线程不停监听
-        Thread tMS11 = new Thread(() => MonitorPLC(ms11CCD, ref lastBoolMS11, "MS11CCD"));
-        Thread tMX11 = new Thread(() => MonitorPLC(mx11CCD, ref lastBoolMX11, "MX11CCD"));
+        Thread tMS11 = new Thread(() => MonitorPLC(ms11CCD, ref lastBoolMS11, ref lastScanMS11, "MS11CCD"));
+        Thread tMX11 = new Thread(() => MonitorPLC(mx11CCD, ref lastBoolMX11, ref lastScanMX11, "MX11CCD"));
 
         tMS11.IsBackground = true;
         tMX11.IsBackground = true;
@@ -56,69 +62,99 @@ public class CCDFinished
         tMX11.Start();
     }
 
-    private void MonitorPLC(SiemensS7Net plc, ref bool lastBool, string ccdName)
+    private void MonitorPLC(SiemensS7Net plc, ref bool lastBool, ref bool lastScan, string deviceName)
     {
         while (true)
         {
             try
             {
-                // 读取 DB500.6 bool
+                // ================= CCD完成检测 =================
                 var boolRes = plc.ReadBool("DB500.6");
-                if (!boolRes.IsSuccess)
+                if (boolRes.IsSuccess)
                 {
-                    Log.Information($"[{ccdName}] bool读取失败: {boolRes.Message}");
-                    Thread.Sleep(50);
-                    continue;
-                }
+                    bool currentBool = boolRes.Content;
 
-                bool currentBool = boolRes.Content;
-
-                // 上升沿检测
-                if (!lastBool && currentBool)
-                {
-                    try
+                    // CCD 上升沿
+                    if (!lastBool && currentBool)
                     {
-                        Log.Information($"[{ccdName}] 上升沿触发");
-
-                        // 统一读取 DB500.0 Int16 和 DB500.2 DInt32
-                        var intRes = plc.ReadInt16("DB500.0");
-                        short intValue = intRes.IsSuccess ? intRes.Content : (short)0;
-
-                        var dIntRes = plc.ReadInt32("DB500.2");
-                        int dIntValue = dIntRes.IsSuccess ? dIntRes.Content : 0;
-
-                        Log.Information($"[{ccdName}] DB500.0 Int16: {intValue}, DB500.2 DInt32: {dIntValue}");
-
-                        // 触发事件给外部使用
-                        OnCCDTriggered?.Invoke(ccdName, intValue, dIntValue);
-
-                        // CCD特有逻辑
-                        if (ccdName == "MS11CCD")
+                        try
                         {
-                            Log.Information("[MS11CCD]收到ok信号");
-                            CCDManage.MS11CCD.Data = new CCDData() { Result = intValue, DetailedInformation = dIntValue };
-                            CCDManage.MS11CCD.SendToMes();
+                            Log.Information($"[{deviceName}] CCD上升沿触发");
+
+                            var intRes = plc.ReadInt16("DB500.0");
+                            short intValue = intRes.IsSuccess ? intRes.Content : (short)0;
+
+                            var dIntRes = plc.ReadInt32("DB500.2");
+                            int dIntValue = dIntRes.IsSuccess ? dIntRes.Content : 0;
+
+                            Log.Information($"[{deviceName}] DB500.0 Int16: {intValue}, DB500.2 DInt32: {dIntValue}");
+
+                            OnCCDTriggered?.Invoke(deviceName, intValue, dIntValue);
+
+                            if (deviceName == "MS11CCD")
+                            {
+                                CCDManage.MS11CCD.Data = new CCDData() { Result = intValue, DetailedInformation = dIntValue };
+                                CCDManage.MS11CCD.SendToMes();
+                            }
+                            else if (deviceName == "MX11CCD")
+                            {
+                                CCDManage.MX11CCD.Data = new CCDData() { Result = intValue, DetailedInformation = dIntValue };
+                                CCDManage.MX11CCD.SendToMes();
+                            }
                         }
-                        else if (ccdName == "MX11CCD")
+                        catch (Exception ex)
                         {
-                            Log.Information("[MX11CCD]收到ok信号");
-                            CCDManage.MX11CCD.Data = new CCDData() { Result = intValue, DetailedInformation = dIntValue };
-                            CCDManage.MX11CCD.SendToMes();
+                            Log.Information($"[{deviceName}] CCD触发异常: {ex.Message}");
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Log.Information($"[{ccdName}] 触发事件异常: {ex.Message}");
-                    }
-                    
+
+                    lastBool = currentBool;
                 }
 
-                lastBool = currentBool;
-                Thread.Sleep(50); // 每50ms读取一次
+                // ================= 扫码完成检测 =================
+                var scanRes = plc.ReadBool("DB4.28.0");
+                if (scanRes.IsSuccess)
+                {
+                    bool currentScan = scanRes.Content;
+
+                    // 扫码上升沿
+                    if (!lastScan && currentScan)
+                    {
+                        try
+                        {
+                            Log.Information($"[{deviceName}] 扫码信号上升沿触发");
+
+                            // 读取条码字符串，假设条码在DB4.30.0开始，长度比如 50
+                            var barcodeRes = plc.ReadString("DB4.30", 50);
+                            string barcode = barcodeRes.IsSuccess ? barcodeRes.Content : string.Empty;
+
+                            Log.Information($"[{deviceName}] 条码值: {barcode}");
+
+                            OnBarcodeTriggered?.Invoke(deviceName, barcode);
+                            
+                            if (deviceName == "MS11CCD")
+                            {
+                                CCDManage.MS11CCD.NowBarcode = barcode;
+                            }
+                            else if (deviceName == "MX11CCD")
+                            {
+                                CCDManage.MX11CCD.NowBarcode = barcode;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Information($"[{deviceName}] 扫码触发异常: {ex.Message}");
+                        }
+                    }
+
+                    lastScan = currentScan;
+                }
+
+                Thread.Sleep(50);
             }
             catch (Exception ex)
             {
-                Log.Information($"[{ccdName}] 监控异常: {ex.Message}");
+                Log.Information($"[{deviceName}] 监控异常: {ex.Message}");
             }
         }
     }
