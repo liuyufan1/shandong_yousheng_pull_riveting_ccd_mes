@@ -32,7 +32,7 @@ public abstract class DeviceFather<T> where T : DataFather, new()
             return ResEntity.Fail(500, "条码为空");
         }
         ResEntity resultResult = new ResEntity();
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 2; i++)
         {
             
             var result = MesUtil.Upload(NowBarcode, Processes, Board, UserName,"", dataStr,"", mesStatus);
@@ -46,10 +46,10 @@ public abstract class DeviceFather<T> where T : DataFather, new()
             }
         }
 
-        LogUtil.ShowInMainPgae("MES:[" + Name + "] mes连续上传失败3次。条码：" + NowBarcode + " " + resultResult.Message);
+        LogUtil.ShowInMainPgae("MES:[" + Name + "] mes连续上传失败2次。条码：" + NowBarcode + " " + resultResult.Message);
         NowBarcode = "";
         Data = new T(); // 重置 Data
 
-        return ResEntity.Fail(500, "上传失败3次");
+        return ResEntity.Fail(500, "上传失败2次");
     }
 }

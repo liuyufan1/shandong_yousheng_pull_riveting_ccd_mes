@@ -10,9 +10,9 @@ public class MesUtil
     
     private static readonly HttpClient _httpClient = new ();
 
-    public static async Task<ResEntity> Upload(string barcode, string process, 
-                            string board, string username,
-                            string heatNumber, string spec, string alloy, string status = "A")
+    public static async Task<ResEntity> Upload(string barcode, string process,  string board, 
+                                                string username, string heatNumber, string spec, 
+                                                string alloy, string status = "A")
     {
         try
         {

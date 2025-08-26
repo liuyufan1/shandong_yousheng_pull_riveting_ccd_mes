@@ -1,3 +1,4 @@
+using System.Text;
 using HslCommunication.Profinet.Siemens;
 using pull_riveting_ccd_mes.deviceManager.ccd;
 using pull_riveting_ccd_mes.programUtil.log;
@@ -86,12 +87,22 @@ public class CCDFinished
                             int dIntValue = dIntRes.IsSuccess ? dIntRes.Content : 0;
 
                             Log.Information($"[{deviceName}] DB500.0 Int16: {intValue}, DB500.2 DInt32: {dIntValue}");
-                            
-                            // 读取条码字符串，假设条码在DB4.30.0开始，长度比如 50
-                            var barcodeRes = plc.ReadString("DB500.8", 50);
-                            string barcode = barcodeRes.IsSuccess ? barcodeRes.Content : string.Empty;
 
-                            LogUtil.AddLog($"[{deviceName}] 条码值: {barcode}");
+                            string barcode = "";
+                            // 读取条码字符串，DB500.8
+                            var read = plc.Read("DB500.8", 52);
+                            if (read.IsSuccess)
+                            {
+                                byte[] buffer = read.Content;
+                                int maxLen = buffer[0];   // 最大长度（比如50）
+                                int actLen = buffer[1];   // 实际长度
+                                barcode = Encoding.ASCII.GetString(buffer, 2, actLen); // 从第2字节开始取
+                                LogUtil.AddLog($"[{deviceName}] 条码值: {barcode}");
+                            }
+                            else
+                            {
+                                LogUtil.AddLog($"[{deviceName}] 读取失败: {read.Message}");
+                            }
                             
 
                             OnCCDTriggered?.Invoke(deviceName, intValue, dIntValue);
