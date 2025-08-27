@@ -72,7 +72,7 @@ public class ServoFinished
             var parts = topic.Split('/');
             if (parts.Length != 2)
             {
-                LogUtil.ShowInMainPgae($"收到未知格式主题 {topic}: {message}");
+                LogUtil.AddLog($"收到未知格式主题 {topic}: {message}");
                 return;
             }
 
@@ -84,10 +84,20 @@ public class ServoFinished
             switch (eventType)
             {
                 case "产品完成":
-                    // 数量重置为0时触发产品完成
-                    if (payloadInt == 0)
+                    OperateResult<JObject> read = MqttSyncClient.ReadRpc<JObject>("Edge/DeviceData", new { data = $"{device}" });
+                    JObject jsonObj = JObject.Parse(read.Content.ToString());
+                    int needNum = 0;
+                    try
                     {
-                        LogUtil.ShowInMainPgae($"[伺服{device}] 产品完成信号: {message}");
+                        needNum = (int)jsonObj["防漏拉设定个数"];// 防漏拉设定个数
+                    }catch (Exception ex)
+                    {
+                        Log.Error("解析伺服拉铆枪防漏拉设定个数失败：" + ex);
+                    }
+                    // 数量重置为0时触发产品完成
+                    if (payloadInt == needNum)
+                    {
+                        LogUtil.AddLog($"[伺服{device}] 产品完成信号: {message}");
                         // ProductCompleted(int.Parse(device.Substring(0, device.IndexOf("号"))));
                         if (int.TryParse(device.Substring(0, device.IndexOf("号")), out int id))
                             ProductCompleted(id);
@@ -96,7 +106,7 @@ public class ServoFinished
                 case "拉铆结果":
                     if (payloadInt != 0)
                     {
-                        // LogUtil.ShowInMainPgae($"[伺服{device}] 拉铆结果信号: {message}");
+                        // LogUtil.AddLog($"[伺服{device}] 拉铆结果信号: {message}");
                         Log.Information($"[伺服{device}] 拉铆结果信号: {message}");
                         // 提取设备编号，例如 "1号拉铆枪" -> id = 1
                         if (int.TryParse(device.Substring(0, device.IndexOf("号")), out int id))
@@ -139,7 +149,7 @@ public class ServoFinished
             
             string data = $"{d1},{d2},{d3}";
 
-            // LogUtil.ShowInMainPgae("伺服拉铆完成信号: " + data + " id:" + id);
+            // LogUtil.AddLog("伺服拉铆完成信号: " + data + " id:" + id);
             
             Log.Information($"[伺服{id}号拉铆枪] 伺服拉铆完成信号: " + data);
             
@@ -171,14 +181,14 @@ public class ServoFinished
         }
         catch (Exception ex)
         {
-            LogUtil.ShowInMainPgae($"读取设备数据失败: {ex.Message}");
+            LogUtil.AddLog($"读取设备数据失败: {ex.Message}");
         }
     }
     
     // 产品完成
     private static void ProductCompleted(int id)
     { 
-        LogUtil.ShowInMainPgae($"[伺服拉铆设备{id}]完成");
+        LogUtil.AddLog($"[伺服拉铆设备{id}]完成");
         try
         {
             switch (id)
@@ -196,14 +206,14 @@ public class ServoFinished
                     ServoRivetingManage.ServoRiveting4.SendToMes();
                     break;
                 default:
-                    LogUtil.ShowInMainPgae($"未知伺服拉铆设备编号: {id}");
+                    LogUtil.AddLog($"未知伺服拉铆设备编号: {id}");
                     break;
                 
             }
         }
         catch (Exception e)
         {
-            LogUtil.ShowInMainPgae("伺服拉铆设备完成异常：" + e.Message);
+            LogUtil.AddLog("伺服拉铆设备完成异常：" + e.Message);
         }
         
     }

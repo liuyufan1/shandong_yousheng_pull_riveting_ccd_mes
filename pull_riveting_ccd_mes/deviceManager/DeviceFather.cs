@@ -26,7 +26,7 @@ public abstract class DeviceFather<T> where T : DataFather, new()
         var mesStatus = Data?.GetMesStatus();
         if (String.IsNullOrEmpty(NowBarcode))
         {
-            LogUtil.ShowInMainPgae("MES:[" + Name + "] 条码为空。data: " + dataStr + " mesStatus:" + mesStatus);
+            LogUtil.AddLog("MES:[" + Name + "] 条码为空。data: " + dataStr + " mesStatus:" + mesStatus);
             NowBarcode = "";
             Data = new T(); // 重置 Data
             return ResEntity.Fail(500, "条码为空");
@@ -39,14 +39,14 @@ public abstract class DeviceFather<T> where T : DataFather, new()
             resultResult = result.Result;
             if (resultResult.Code == 200)
             {
-                LogUtil.ShowInMainPgae("MES:[" + Name + "] mes上传成功。条码：" + NowBarcode + "  data:" + dataStr);
+                LogUtil.AddLog("MES:[" + Name + "] mes上传成功。条码：" + NowBarcode + "  data:" + dataStr);
                 NowBarcode = "";
                 Data = new T(); // 重置 Data
                 return resultResult;
             }
         }
 
-        LogUtil.ShowInMainPgae("MES:[" + Name + "] mes连续上传失败2次。条码：" + NowBarcode + " " + resultResult.Message);
+        LogUtil.AddLog("MES:[" + Name + "] mes连续上传失败2次。条码：" + NowBarcode + " " + resultResult.Message);
         NowBarcode = "";
         Data = new T(); // 重置 Data
 

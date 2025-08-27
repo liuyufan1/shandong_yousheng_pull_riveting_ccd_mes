@@ -7,4 +7,5 @@ public class PdaBarcodeEntity
 {
     public string barcode { get; set; }
     public string machineName { get; set; }
+    public bool isReplenishment { get; set; }
 }

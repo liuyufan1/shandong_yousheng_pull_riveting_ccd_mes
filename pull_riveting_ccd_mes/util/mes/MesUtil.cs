@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using pull_riveting_ccd_mes.programUtil.log;
 using Serilog;
 
 namespace pull_riveting_ccd_mes.util.mes;
@@ -14,6 +15,7 @@ public class MesUtil
                                                 string username, string heatNumber, string spec, 
                                                 string alloy, string status = "A")
     {
+        spec = spec.Substring(0, 59);   
         try
         {
             string url = "https://sh.unisonal.com:431/api/Common/AddEmploymentReportByCode";
@@ -47,7 +49,7 @@ public class MesUtil
             }
 
             var responseString = await response.Content.ReadAsStringAsync();
-            Log.Information($"MES返回: {responseString}");
+            LogUtil.AddLog($"MES返回: {responseString}");
 
             using var doc = JsonDocument.Parse(responseString);
             if (doc.RootElement.TryGetProperty("code", out var codeElement))

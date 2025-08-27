@@ -116,28 +116,28 @@ public class CorePullingRivetingFinished
                         // 共用原有的设备处理逻辑
                         if (deviceName == "MS11Left")
                         {
-                            LogUtil.ShowInMainPgae($"[抽芯拉铆]MS11Left 完成信号收到。拉铆数{number}");
+                            LogUtil.AddLog($"[抽芯拉铆]MS11Left 完成信号收到。拉铆数{number}");
                             if (CorePullingRivetingManage.MS11Left.Data != null)
                                 CorePullingRivetingManage.MS11Left.Data.Number = number;
                             CorePullingRivetingManage.MS11Left.SendToMes();
                         }
                         else if (deviceName == "MS11Right")
                         {
-                            LogUtil.ShowInMainPgae($"[抽芯拉铆]MS11Right 完成信号收到。拉铆数{number}");
+                            LogUtil.AddLog($"[抽芯拉铆]MS11Right 完成信号收到。拉铆数{number}");
                             if (CorePullingRivetingManage.MS11Right.Data != null)
                                 CorePullingRivetingManage.MS11Right.Data.Number = number;
                             CorePullingRivetingManage.MS11Right.SendToMes();
                         }
                         else if (deviceName == "MX11Left")
                         {
-                            LogUtil.ShowInMainPgae($"[抽芯拉铆]MX11Left 完成信号收到。拉铆数{number}");
+                            LogUtil.AddLog($"[抽芯拉铆]MX11Left 完成信号收到。拉铆数{number}");
                             if (CorePullingRivetingManage.MX11Left.Data != null)
                                 CorePullingRivetingManage.MX11Left.Data.Number = number;
                             CorePullingRivetingManage.MX11Left.SendToMes();
                         }
                         else if (deviceName == "MX11Right")
                         {
-                            LogUtil.ShowInMainPgae($"[抽芯拉铆]MX11Right 完成信号收到。拉铆数{number}");
+                            LogUtil.AddLog($"[抽芯拉铆]MX11Right 完成信号收到。拉铆数{number}");
                             if (CorePullingRivetingManage.MX11Right.Data != null)
                                 CorePullingRivetingManage.MX11Right.Data.Number = number;
                             CorePullingRivetingManage.MX11Right.SendToMes();

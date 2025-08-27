@@ -34,7 +34,7 @@ public partial class App : Application
             // 启动 PDA 扫码服务
             _pdaScannerServer = new PdaScannerServer("http://+:8089/pdaScanner/");
             _pdaScannerServer.OnBarcodeReceived +=
-                entity => PdaBarcodeReceived.OnReceived(entity.barcode, entity.machineName);
+                entity => PdaBarcodeReceived.OnReceived(entity.barcode, entity.machineName, entity.isReplenishment);
             _pdaScannerServer.Start();
             // 配置CCD管理类
             CCDManage.Init();
@@ -67,7 +67,7 @@ public partial class App : Application
     // UI 线程未捕获异常
     private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
     {
-        LogUtil.ShowInMainPgae($"UI线程异常: {e.Exception}");
+        LogUtil.AddLog($"UI线程异常: {e.Exception}");
         Serilog.Log.Error(e.Exception, "UI线程未处理异常");
         e.Handled = true; // 设置为已处理，防止程序崩溃
     }
@@ -77,7 +77,7 @@ public partial class App : Application
     {
         if (e.ExceptionObject is Exception ex)
         {
-            LogUtil.ShowInMainPgae($"非UI线程异常: {ex}");
+            LogUtil.AddLog($"非UI线程异常: {ex}");
             Serilog.Log.Error(ex, "非UI线程未处理异常");
         }
     }
@@ -85,7 +85,7 @@ public partial class App : Application
     // 未观察的异步异常
     private void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
     {
-        LogUtil.ShowInMainPgae($"未观察的Task异常: {e.Exception}");
+        LogUtil.AddLog($"未观察的Task异常: {e.Exception}");
         Serilog.Log.Error(e.Exception, "未观察的Task异常");
         e.SetObserved(); // 避免程序终止
     }
