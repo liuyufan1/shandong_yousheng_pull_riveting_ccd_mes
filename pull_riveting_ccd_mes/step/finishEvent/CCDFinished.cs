@@ -34,31 +34,31 @@ public class CCDFinished
     {
         // 连接两台 PLC
         var resMS11 = ms11CCD.ConnectServer();
-        // var resMX11 = mx11CCD.ConnectServer();
+        var resMX11 = mx11CCD.ConnectServer();
 
         if (!resMS11.IsSuccess)
         {
             Log.Information("[MS11CCD] 连接失败: " + resMS11.Message);
-            // return;
+            return;
         }
 
-        // if (!resMX11.IsSuccess)
-        // {
-        //     Log.Information("[MX11CCD] 连接失败: " + resMX11.Message);
-            // return;
-        // }
+        if (!resMX11.IsSuccess)
+        {
+            Log.Information("[MX11CCD] 连接失败: " + resMX11.Message);
+            return;
+        }
 
         Log.Information("[MS11CCD] 和 [MX11CCD] 已连接");
 
         // 启动线程不停监听
         Thread tMS11 = new Thread(() => MonitorPLC(ms11CCD, ref lastBoolMS11, "MS11CCD"));
-        // Thread tMX11 = new Thread(() => MonitorPLC(mx11CCD, ref lastBoolMX11, "MX11CCD"));
+        Thread tMX11 = new Thread(() => MonitorPLC(mx11CCD, ref lastBoolMX11, "MX11CCD"));
 
         tMS11.IsBackground = true;
-        // tMX11.IsBackground = true;
+        tMX11.IsBackground = true;
 
         tMS11.Start();
-        // tMX11.Start();
+        tMX11.Start();
     }
 
     private void MonitorPLC(SiemensS7Net plc, ref bool lastBool, string deviceName)

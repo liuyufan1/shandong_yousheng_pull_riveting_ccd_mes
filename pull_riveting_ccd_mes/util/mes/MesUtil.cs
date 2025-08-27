@@ -15,7 +15,7 @@ public class MesUtil
                                                 string username, string heatNumber, string spec, 
                                                 string alloy, string status = "A")
     {
-        spec = spec.Substring(0, 59);   
+        spec = spec.Substring(0, Math.Min(spec.Length, 59));
         try
         {
             string url = "https://sh.unisonal.com:431/api/Common/AddEmploymentReportByCode";
